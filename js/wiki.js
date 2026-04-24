@@ -12,6 +12,9 @@
 
   function parseMarkdown(src) {
     const lines = src.split('\n');
+    if (lines.length && lines[0].charAt(0) === '\uFEFF') {
+      lines[0] = lines[0].slice(1);
+    }
     let html = '';
     let inCode = false;
     let inList = false;
@@ -52,12 +55,13 @@
         setTimeout(() => loadMap(id, 'maps/' + mapMatch[1]), 0);
         continue;
       }
-
+      
       // Infobox start/end
       if (line.trim() === '{{infobox}}') { html += '<div class="infobox">'; continue; }
       if (line.trim() === '{{/infobox}}') { html += '</div>'; continue; }
-      if (line.startsWith('{{infobox-title:')) {
-        html += '<div class="infobox-title">' + line.slice(16, -2) + '</div><table>';
+      if (line.startsWith('infobox-title:')) {
+        const title = line.slice(16).replace(/\s*\}\}$/, '').trim();
+        html += '<div class="infobox-title">' + title + '</div><table>';
         continue;
       }
 
@@ -67,7 +71,10 @@
         if (!inTable) {
           inTable = true;
           html += '<table><thead><tr>' + cells.map(c => `<th>${inline(c.trim())}</th>`).join('') + '</tr></thead><tbody>';
-          i++; // skip separator row
+          // Check if next line is a table separator
+          if (i + 1 < lines.length && lines[i + 1].trim().match(/^\|(\s*[:-]+\s*\|)+$/)) {
+            i++; // skip separator row
+          }
           continue;
         }
         html += '<tr>' + cells.map(c => `<td>${inline(c.trim())}</td>`).join('') + '</tr>';
@@ -78,7 +85,7 @@
       const hMatch = line.match(/^(#{1,6})\s+(.*)$/);
       if (hMatch) {
         const level = hMatch[1].length;
-        html += `<h${level}>${inline(hMatch[2])}</h${level}>`;
+        html += `<h${level} class="heading heading-${level}">${inline(hMatch[2])}</h${level}>`;
         continue;
       }
 
@@ -156,22 +163,38 @@
     renderNav(siteIndex.categories);
   }
 
-  function renderNav(categories, filter = '') {
+  function renderNav(categories, filter = '', level = 0) {
     const lower = filter.toLowerCase();
     let html = '';
     for (const cat of categories) {
       const pages = (cat.pages || []).filter(p =>
         !lower || p.name.toLowerCase().includes(lower)
       );
-      if (pages.length === 0 && lower) continue;
-      html += `<div class="nav-category">${cat.name}</div><ul>`;
-      for (const page of pages) {
-        const slug = page.slug || slugify(page.name);
-        html += `<li><a href="#${slug}" data-page="${slug}">${page.name}</a></li>`;
+      const subCats = cat.categories || [];
+      let hasSubContent = false;
+      if (subCats.length > 0) {
+        const subHtml = renderNav(subCats, filter, level + 1);
+        hasSubContent = subHtml.trim() !== '';
       }
-      html += '</ul>';
+      if (pages.length === 0 && !hasSubContent && lower) continue;
+      html += `<details class="nav-category" ${level === 0 ? 'open' : ''}><summary>${cat.name}</summary>`;
+      if (pages.length > 0) {
+        html += '<ul>';
+        for (const page of pages) {
+          const slug = page.slug || slugify(page.name);
+          html += `<li><a href="#${slug}" data-page="${slug}">${page.name}</a></li>`;
+        }
+        html += '</ul>';
+      }
+      if (hasSubContent) {
+        html += renderNav(subCats, filter, level + 1);
+      }
+      html += '</details>';
     }
-    navTree.innerHTML = html;
+    if (level === 0) {
+      navTree.innerHTML = html;
+    }
+    return html;
   }
 
   async function loadPage(slug) {

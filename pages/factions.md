@@ -1,7 +1,7 @@
 # Factions
 
 {{infobox}}
-{{infobox-title:The Iron Concord}}
+infobox-title:  The Iron Concord
 | Attribute | Value |
 | Type | Military Alliance |
 | Founded | Third Age, Year 412 |

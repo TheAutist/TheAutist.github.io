@@ -15,9 +15,14 @@
       ]
     },
     {
-      "name": "Peoples",
-      "pages": [
-        { "name": "Factions", "slug": "factions" }
+      "name": "Factions",
+      "categories": [
+        { 
+          "name" : "Guarding Steel",
+          "pages": [
+            { "name": "Order of Southern Peaks", "slug": "GuardingSteel/OrderOfSouthernPeaks" }
+          ]
+        }
       ]
     }
   ]
