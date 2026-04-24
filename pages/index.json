@@ -1,0 +1,24 @@
+{
+  "title": "World Wiki",
+  "categories": [
+    {
+      "name": "Overview",
+      "pages": [
+        { "name": "Home", "slug": "home" },
+        { "name": "Timeline", "slug": "timeline" }
+      ]
+    },
+    {
+      "name": "Geography",
+      "pages": [
+        { "name": "World Map", "slug": "world-map" }
+      ]
+    },
+    {
+      "name": "Peoples",
+      "pages": [
+        { "name": "Factions", "slug": "factions" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "image": "maps/world.png",
+  "bounds": [[0, 0], [1000, 1000]],
+  "minZoom": -2,
+  "maxZoom": 2,
+  "markers": [
+    {
+      "name": "Example City",
+      "coords": [500, 500],
+      "description": "Replace this with your own markers.",
+      "page": "Factions"
+    }
+  ]
+}
